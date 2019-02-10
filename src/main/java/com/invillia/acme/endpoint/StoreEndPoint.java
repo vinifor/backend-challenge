@@ -28,7 +28,7 @@ public class StoreEndPoint {
     @Autowired
     private StoreRepository storeRepository;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    private final  ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping
     public ResponseEntity<?> save(@RequestBody StoreDTO storeDTO) {
