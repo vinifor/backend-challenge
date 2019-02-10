@@ -23,3 +23,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+/backend-challenge-impl/target/
+/backend-challenge-ws/target/
+/backend-challenge-api/target/

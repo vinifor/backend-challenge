@@ -6,6 +6,8 @@
 package com.invillia.acme.repository;
 
 import com.invillia.acme.model.Order;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -14,4 +16,5 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface OrderRepository extends CrudRepository<Order, Long> {
 
+    List<Order> findByConfirmationDateGreaterThan(LocalDate date);
 }

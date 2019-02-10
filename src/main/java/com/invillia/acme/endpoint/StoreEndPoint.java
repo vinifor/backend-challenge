@@ -6,6 +6,7 @@
 package com.invillia.acme.endpoint;
 
 import com.invillia.acme.model.Store;
+import com.invillia.acme.model.dto.StoreDTO;
 import com.invillia.acme.repository.StoreRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author vinicius
@@ -21,46 +25,45 @@ import java.util.Optional;
 @RequestMapping("stores")
 public class StoreEndPoint {
 
-    private final StoreRepository storeRepository;
+    @Autowired
+    private StoreRepository storeRepository;
 
-    public StoreEndPoint(StoreRepository storeRepository) {
-        this.storeRepository = storeRepository;
-    }
+    private ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody Store store) {
-        return new ResponseEntity<>(storeRepository.save(store), HttpStatus.CREATED);
+    public ResponseEntity<?> save(@RequestBody StoreDTO storeDTO) {
+        return new ResponseEntity<>(storeRepository.save(modelMapper.map(storeDTO, Store.class)),
+                HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<?> update(@RequestBody Store store) {
-        if (storeRepository.findById(store.getId()).isPresent()) {
-            return new ResponseEntity<>(storeRepository.save(store), HttpStatus.OK);
+    public ResponseEntity<?> update(@RequestBody StoreDTO storeDTO) {
+        if (storeRepository.findById(storeDTO.getId()).isPresent()) {
+            return new ResponseEntity<>(storeRepository.save(modelMapper.map(storeDTO, Store.class)),
+                    HttpStatus.OK);
         } else {
             return notFound();
         }
-    }
-
-    @GetMapping
-    public ResponseEntity<?> findAll() {
-        return new ResponseEntity<>(storeRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) {
         Optional<Store> store = storeRepository.findById(id);
         if (store.isPresent()) {
-            return new ResponseEntity<>(store, HttpStatus.OK);
+            return new ResponseEntity<>(modelMapper.map(store, StoreDTO.class), HttpStatus.OK);
         } else {
             return notFound();
         }
     }
 
-    @GetMapping(path = "/byName/{name}")
+    @GetMapping(path = "/name/{name}")
     public ResponseEntity<?> findById(@PathVariable("name") String name) {
         List<Store> stores = storeRepository.findByNameIgnoreCaseContaining(name);
         if (!stores.isEmpty()) {
-            return new ResponseEntity<>(stores, HttpStatus.OK);
+            return new ResponseEntity<>(stores.stream()
+                    .map(store -> modelMapper.map(store, StoreDTO.class))
+                    .collect(Collectors.toList()),
+                    HttpStatus.OK);
         } else {
             return notFound();
         }
